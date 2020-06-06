@@ -38,6 +38,29 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.put("/", async (req, res) => {
+  let gradeToUpdate = req.body;
+  
+  try {
+    let data = await readFile(global.fileName, "utf-8");
+
+    let json = JSON.parse(data);
+    let indexGrade = json.grades.findIndex(grade => grade.id === gradeToUpdate.id);
+
+    json.grades[indexGrade].student = gradeToUpdate.student;
+    json.grades[indexGrade].subject = gradeToUpdate.subject;
+    json.grades[indexGrade].type = gradeToUpdate.type;
+    json.grades[indexGrade].value = gradeToUpdate.value;
+
+    await writeFile(global.fileName, JSON.stringify(json));
+
+    res.end();
+    logger.info(`PUT /grades - ${JSON.stringify(gradeToUpdate)}`);
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+    logger.error(`PUT /grades - id: ${req.params.id} - error: ${err.message}`);
+  }
+});
 
 
 export default router;
