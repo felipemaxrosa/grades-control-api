@@ -13,7 +13,7 @@ router.get("/", cors(), async (_, res) => {
     let accounts = JSON.parse(data);
     //delete accounts.nextId;
     res.send(accounts);
-    logger.info("GET /grades - successfully");
+    logger.info("GET /grades - successful");
   } catch (err) {
     res.status(400).send({ error: err.message });
     logger.error(`GET /grades - ${err.message}`);
@@ -59,6 +59,23 @@ router.put("/", async (req, res) => {
   } catch (err) {
     res.status(400).send({ error: err.message });
     logger.error(`PUT /grades - id: ${req.params.id} - error: ${err.message}`);
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    let data = await readFile(global.fileName, "utf8");
+    let json = JSON.parse(data);
+    let grades = json.grades.filter(grade => grade.id != parseInt(req.params.id, 10));
+    json.grades = grades;
+
+    await writeFile(global.fileName, JSON.stringify(json));
+    res.end();
+    
+    logger.info(`DELETE /grades/:id - ${req.params.id} - successful`);
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+    logger.error(`DELETE /grades/:id - id: ${req.body.id} - error: ${err.message}`);
   }
 });
 
