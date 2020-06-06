@@ -20,6 +20,23 @@ router.get("/", cors(), async (_, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    let data = await readFile(global.fileName, "utf8");
+    let json = JSON.parse(data);
+    const grade = json.grades.find(grade => grade.id === parseInt(req.params.id, 10));
+    if (grade) {
+      res.send(grade);
+      logger.info(`GET /grades/:id - ${JSON.stringify(grade)}`);
+    } else {
+      res.end();
+    }
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+    logger.error(`GET /grades/:id - ${err.message}`);
+  }
+});
+
 router.post("/", async (req, res) => {
   let grade = req.body;
   try {
