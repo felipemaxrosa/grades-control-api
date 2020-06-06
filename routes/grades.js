@@ -20,6 +20,28 @@ router.get("/", cors(), async (_, res) => {
   }
 });
 
+router.get("/sum", async (req, res) => {
+  let dataStudent = req.body;
+  try {
+    let data = await readFile(global.fileName, "utf8");
+    let json = JSON.parse(data);
+    
+    const grades = json.grades.filter(grade => (grade.student === dataStudent.student && grade.subject === dataStudent.subject));
+    if (grades) {
+      let sum = grades.reduce((acc, cur) => {
+        return acc + cur.value;
+      }, 0);
+      res.send({sum});
+      logger.info(`GET /grades/sum - sum values: ${sum} - ${JSON.stringify(grades)}`);
+    } else {
+      res.end();
+    }
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+    logger.error(`GET /grades/sum - ${err.message}`);
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     let data = await readFile(global.fileName, "utf8");
